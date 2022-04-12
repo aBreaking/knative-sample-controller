@@ -17,17 +17,14 @@ limitations under the License.
 package main
 
 import (
-	// The set of controllers this controller process runs.
-	"knative.dev/sample-controller/pkg/reconciler/addressableservice"
-	"knative.dev/sample-controller/pkg/reconciler/simpledeployment"
-
 	// This defines the shared main for injected controllers.
 	"knative.dev/pkg/injection/sharedmain"
+	"knative.dev/sample-controller/pkg/reconciler/mydeployment"
 )
 
 func main() {
-	sharedmain.Main("controller",
-		addressableservice.NewController,
-		simpledeployment.NewController,
+	sharedmain.Main(
+		"controller",
+		mydeployment.NewController,
 	)
 }

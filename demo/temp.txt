@@ -1,0 +1,19 @@
+d push boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/autoscaler:v1.3
+d push boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/domain-mapping:v1.3
+d push boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/webhook:v1.3
+d push boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/activator:v1.3
+d push boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/controller:v1.3
+d push boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/domain-mapping-webhook:v1.3
+
+
+
+
+
+boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/queue   v1.3      4af3127db77b   52 years ago   28.1MB
+
+
+d image rm boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/autoscaler
+d image rm boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/domain-mapping
+d image rm boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/webhook
+d image rm boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/activator
+d image rm boatswain.registry.si-tech.com.cn:30100/paas-yewu/knative-releases/knative.dev/serving/cmd/controller

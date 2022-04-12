@@ -1,0 +1,7 @@
+apiVersion: demo.abreaking.com/v1
+kind: MyDeployment
+metadata:
+  name: example-my-deployment
+spec:
+  image: abreaking/helloworld-java
+  replicas: "3"

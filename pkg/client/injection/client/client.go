@@ -24,7 +24,7 @@ import (
 	errors "errors"
 	fmt "fmt"
 
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -36,9 +36,9 @@ import (
 	injection "knative.dev/pkg/injection"
 	dynamicclient "knative.dev/pkg/injection/clients/dynamicclient"
 	logging "knative.dev/pkg/logging"
-	v1alpha1 "knative.dev/sample-controller/pkg/apis/samples/v1alpha1"
+	v1 "knative.dev/sample-controller/pkg/apis/demo/v1"
 	versioned "knative.dev/sample-controller/pkg/client/clientset/versioned"
-	typedsamplesv1alpha1 "knative.dev/sample-controller/pkg/client/clientset/versioned/typed/samples/v1alpha1"
+	typedsamplesv1 "knative.dev/sample-controller/pkg/client/clientset/versioned/typed/demo/v1"
 )
 
 func init() {
@@ -96,46 +96,46 @@ func convert(from interface{}, to runtime.Object) error {
 	return nil
 }
 
-// SamplesV1alpha1 retrieves the SamplesV1alpha1Client
-func (w *wrapClient) SamplesV1alpha1() typedsamplesv1alpha1.SamplesV1alpha1Interface {
-	return &wrapSamplesV1alpha1{
+// SamplesV1 retrieves the SamplesV1Client
+func (w *wrapClient) SamplesV1() typedsamplesv1.SamplesV1Interface {
+	return &wrapSamplesV1{
 		dyn: w.dyn,
 	}
 }
 
-type wrapSamplesV1alpha1 struct {
+type wrapSamplesV1 struct {
 	dyn dynamic.Interface
 }
 
-func (w *wrapSamplesV1alpha1) RESTClient() rest.Interface {
+func (w *wrapSamplesV1) RESTClient() rest.Interface {
 	panic("RESTClient called on dynamic client!")
 }
 
-func (w *wrapSamplesV1alpha1) AddressableServices(namespace string) typedsamplesv1alpha1.AddressableServiceInterface {
-	return &wrapSamplesV1alpha1AddressableServiceImpl{
+func (w *wrapSamplesV1) MyDeployments(namespace string) typedsamplesv1.MyDeploymentInterface {
+	return &wrapSamplesV1MyDeploymentImpl{
 		dyn: w.dyn.Resource(schema.GroupVersionResource{
 			Group:    "samples.knative.dev",
-			Version:  "v1alpha1",
-			Resource: "addressableservices",
+			Version:  "v1",
+			Resource: "mydeployments",
 		}),
 
 		namespace: namespace,
 	}
 }
 
-type wrapSamplesV1alpha1AddressableServiceImpl struct {
+type wrapSamplesV1MyDeploymentImpl struct {
 	dyn dynamic.NamespaceableResourceInterface
 
 	namespace string
 }
 
-var _ typedsamplesv1alpha1.AddressableServiceInterface = (*wrapSamplesV1alpha1AddressableServiceImpl)(nil)
+var _ typedsamplesv1.MyDeploymentInterface = (*wrapSamplesV1MyDeploymentImpl)(nil)
 
-func (w *wrapSamplesV1alpha1AddressableServiceImpl) Create(ctx context.Context, in *v1alpha1.AddressableService, opts v1.CreateOptions) (*v1alpha1.AddressableService, error) {
+func (w *wrapSamplesV1MyDeploymentImpl) Create(ctx context.Context, in *v1.MyDeployment, opts metav1.CreateOptions) (*v1.MyDeployment, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   "samples.knative.dev",
-		Version: "v1alpha1",
-		Kind:    "AddressableService",
+		Version: "v1",
+		Kind:    "MyDeployment",
 	})
 	uo := &unstructured.Unstructured{}
 	if err := convert(in, uo); err != nil {
@@ -145,62 +145,62 @@ func (w *wrapSamplesV1alpha1AddressableServiceImpl) Create(ctx context.Context, 
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.AddressableService{}
+	out := &v1.MyDeployment{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapSamplesV1alpha1AddressableServiceImpl) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
+func (w *wrapSamplesV1MyDeploymentImpl) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
 	return w.dyn.Namespace(w.namespace).Delete(ctx, name, opts)
 }
 
-func (w *wrapSamplesV1alpha1AddressableServiceImpl) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+func (w *wrapSamplesV1MyDeploymentImpl) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
 	return w.dyn.Namespace(w.namespace).DeleteCollection(ctx, opts, listOpts)
 }
 
-func (w *wrapSamplesV1alpha1AddressableServiceImpl) Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.AddressableService, error) {
+func (w *wrapSamplesV1MyDeploymentImpl) Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.MyDeployment, error) {
 	uo, err := w.dyn.Namespace(w.namespace).Get(ctx, name, opts)
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.AddressableService{}
+	out := &v1.MyDeployment{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapSamplesV1alpha1AddressableServiceImpl) List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.AddressableServiceList, error) {
+func (w *wrapSamplesV1MyDeploymentImpl) List(ctx context.Context, opts metav1.ListOptions) (*v1.MyDeploymentList, error) {
 	uo, err := w.dyn.Namespace(w.namespace).List(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.AddressableServiceList{}
+	out := &v1.MyDeploymentList{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapSamplesV1alpha1AddressableServiceImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.AddressableService, err error) {
+func (w *wrapSamplesV1MyDeploymentImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.MyDeployment, err error) {
 	uo, err := w.dyn.Namespace(w.namespace).Patch(ctx, name, pt, data, opts)
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.AddressableService{}
+	out := &v1.MyDeployment{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapSamplesV1alpha1AddressableServiceImpl) Update(ctx context.Context, in *v1alpha1.AddressableService, opts v1.UpdateOptions) (*v1alpha1.AddressableService, error) {
+func (w *wrapSamplesV1MyDeploymentImpl) Update(ctx context.Context, in *v1.MyDeployment, opts metav1.UpdateOptions) (*v1.MyDeployment, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   "samples.knative.dev",
-		Version: "v1alpha1",
-		Kind:    "AddressableService",
+		Version: "v1",
+		Kind:    "MyDeployment",
 	})
 	uo := &unstructured.Unstructured{}
 	if err := convert(in, uo); err != nil {
@@ -210,18 +210,18 @@ func (w *wrapSamplesV1alpha1AddressableServiceImpl) Update(ctx context.Context, 
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.AddressableService{}
+	out := &v1.MyDeployment{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapSamplesV1alpha1AddressableServiceImpl) UpdateStatus(ctx context.Context, in *v1alpha1.AddressableService, opts v1.UpdateOptions) (*v1alpha1.AddressableService, error) {
+func (w *wrapSamplesV1MyDeploymentImpl) UpdateStatus(ctx context.Context, in *v1.MyDeployment, opts metav1.UpdateOptions) (*v1.MyDeployment, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   "samples.knative.dev",
-		Version: "v1alpha1",
-		Kind:    "AddressableService",
+		Version: "v1",
+		Kind:    "MyDeployment",
 	})
 	uo := &unstructured.Unstructured{}
 	if err := convert(in, uo); err != nil {
@@ -231,144 +231,13 @@ func (w *wrapSamplesV1alpha1AddressableServiceImpl) UpdateStatus(ctx context.Con
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.AddressableService{}
+	out := &v1.MyDeployment{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapSamplesV1alpha1AddressableServiceImpl) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	return nil, errors.New("NYI: Watch")
-}
-
-func (w *wrapSamplesV1alpha1) SimpleDeployments(namespace string) typedsamplesv1alpha1.SimpleDeploymentInterface {
-	return &wrapSamplesV1alpha1SimpleDeploymentImpl{
-		dyn: w.dyn.Resource(schema.GroupVersionResource{
-			Group:    "samples.knative.dev",
-			Version:  "v1alpha1",
-			Resource: "simpledeployments",
-		}),
-
-		namespace: namespace,
-	}
-}
-
-type wrapSamplesV1alpha1SimpleDeploymentImpl struct {
-	dyn dynamic.NamespaceableResourceInterface
-
-	namespace string
-}
-
-var _ typedsamplesv1alpha1.SimpleDeploymentInterface = (*wrapSamplesV1alpha1SimpleDeploymentImpl)(nil)
-
-func (w *wrapSamplesV1alpha1SimpleDeploymentImpl) Create(ctx context.Context, in *v1alpha1.SimpleDeployment, opts v1.CreateOptions) (*v1alpha1.SimpleDeployment, error) {
-	in.SetGroupVersionKind(schema.GroupVersionKind{
-		Group:   "samples.knative.dev",
-		Version: "v1alpha1",
-		Kind:    "SimpleDeployment",
-	})
-	uo := &unstructured.Unstructured{}
-	if err := convert(in, uo); err != nil {
-		return nil, err
-	}
-	uo, err := w.dyn.Namespace(w.namespace).Create(ctx, uo, opts)
-	if err != nil {
-		return nil, err
-	}
-	out := &v1alpha1.SimpleDeployment{}
-	if err := convert(uo, out); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (w *wrapSamplesV1alpha1SimpleDeploymentImpl) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	return w.dyn.Namespace(w.namespace).Delete(ctx, name, opts)
-}
-
-func (w *wrapSamplesV1alpha1SimpleDeploymentImpl) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	return w.dyn.Namespace(w.namespace).DeleteCollection(ctx, opts, listOpts)
-}
-
-func (w *wrapSamplesV1alpha1SimpleDeploymentImpl) Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.SimpleDeployment, error) {
-	uo, err := w.dyn.Namespace(w.namespace).Get(ctx, name, opts)
-	if err != nil {
-		return nil, err
-	}
-	out := &v1alpha1.SimpleDeployment{}
-	if err := convert(uo, out); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (w *wrapSamplesV1alpha1SimpleDeploymentImpl) List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.SimpleDeploymentList, error) {
-	uo, err := w.dyn.Namespace(w.namespace).List(ctx, opts)
-	if err != nil {
-		return nil, err
-	}
-	out := &v1alpha1.SimpleDeploymentList{}
-	if err := convert(uo, out); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (w *wrapSamplesV1alpha1SimpleDeploymentImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.SimpleDeployment, err error) {
-	uo, err := w.dyn.Namespace(w.namespace).Patch(ctx, name, pt, data, opts)
-	if err != nil {
-		return nil, err
-	}
-	out := &v1alpha1.SimpleDeployment{}
-	if err := convert(uo, out); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (w *wrapSamplesV1alpha1SimpleDeploymentImpl) Update(ctx context.Context, in *v1alpha1.SimpleDeployment, opts v1.UpdateOptions) (*v1alpha1.SimpleDeployment, error) {
-	in.SetGroupVersionKind(schema.GroupVersionKind{
-		Group:   "samples.knative.dev",
-		Version: "v1alpha1",
-		Kind:    "SimpleDeployment",
-	})
-	uo := &unstructured.Unstructured{}
-	if err := convert(in, uo); err != nil {
-		return nil, err
-	}
-	uo, err := w.dyn.Namespace(w.namespace).Update(ctx, uo, opts)
-	if err != nil {
-		return nil, err
-	}
-	out := &v1alpha1.SimpleDeployment{}
-	if err := convert(uo, out); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (w *wrapSamplesV1alpha1SimpleDeploymentImpl) UpdateStatus(ctx context.Context, in *v1alpha1.SimpleDeployment, opts v1.UpdateOptions) (*v1alpha1.SimpleDeployment, error) {
-	in.SetGroupVersionKind(schema.GroupVersionKind{
-		Group:   "samples.knative.dev",
-		Version: "v1alpha1",
-		Kind:    "SimpleDeployment",
-	})
-	uo := &unstructured.Unstructured{}
-	if err := convert(in, uo); err != nil {
-		return nil, err
-	}
-	uo, err := w.dyn.Namespace(w.namespace).UpdateStatus(ctx, uo, opts)
-	if err != nil {
-		return nil, err
-	}
-	out := &v1alpha1.SimpleDeployment{}
-	if err := convert(uo, out); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (w *wrapSamplesV1alpha1SimpleDeploymentImpl) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
+func (w *wrapSamplesV1MyDeploymentImpl) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
 	return nil, errors.New("NYI: Watch")
 }
